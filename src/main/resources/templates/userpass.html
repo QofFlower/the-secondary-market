@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>设置我的密码</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/template.css}" media="all">
+</head>
+<body>
+<div id="app">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">修改密码</div>
+                    <div class="layui-card-body" pad15>
+
+                        <div class="layui-form" lay-filter="">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">当前密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" name="oldPassword" v-model="oldPassword"
+                                           lay-verify="required"
+                                           lay-verType="tips"
+                                           @mouseleave="checkPass"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">新密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" v-model="password" name="password" lay-verify="pass"
+                                           lay-verType="tips"
+                                           autocomplete="off" id="LAY_password" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">6到16个字符</div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">确认新密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" v-model="rePassword" name="repassword" lay-verify="repass"
+                                           lay-verType="tips"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="layui-btn" @click="updatePass">确认修改</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script th:inline="javascript">
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'set']);
+
+    let app = new Vue({
+        el: "#app",
+        data: {
+            oldPassword: "",
+            password: "",
+            rePassword: "",
+            correctPass: false,
+        },
+        methods: {
+            checkPass() {
+                //检查当前输入的密码是否正确
+                let that = this;
+                let params = new URLSearchParams();//封装参数
+                params.append('password', this.oldPassword);
+                axios.post(preURL + "/user/checkPass", params).then(res => {
+                    if (res.data.code === 200) {
+                        that.correctPass = true;
+                    } else {
+                        layer.msg(res.data.message, {
+                            offset: '15px',
+                            icon: 5
+                        });
+                    }
+                }, err => {
+                    console.log(err.data.message);
+                });
+            },
+            updatePass() {
+                if (!this.correctPass) {
+                    layer.msg('当前密码输入不正确', {
+                        offset: '15px',
+                        icon: 5
+                    });
+                    return;
+                }
+                if (this.password !== this.rePassword) {
+                    layer.msg('两次输入的密码不一致', {
+                        offset: '15px',
+                        icon: 5
+                    });
+                    return;
+                }
+                let that = this;
+                let params = new URLSearchParams();//封装参数
+                params.append('password',this.password);
+                axios.patch(preURL+'/user/updatePass',params).then(res => {
+
+                    layer.msg(res.data.message, {
+                        offset: '15px'
+                        , icon: 1
+                    });
+                    //修改完成后登出，并跳转到登录页面
+                    location.href = preURL + "/user/logout";
+                }, err => {
+                    console.log(err);
+                    layer.msg(err.data.message, {
+                        offset: '15px'
+                        , icon: 5
+                    });
+                });
+            },
+
+        }
+    });
+</script>
+</body>
+</html>

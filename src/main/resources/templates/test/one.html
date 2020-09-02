@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>用户注册</title>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../../static/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../static/plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../static/plugins/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="../../static/plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../../static/plugins/iCheck/square/blue.css">
+    <link rel="stylesheet" type="text/css" href="../../static/css/alicss/iconfont.css">
+    <link rel="stylesheet" href="../../static/css/element-index.css">
+
+</head>
+<body class="hold-transition register-page">
+<div class="register-box" id="app">
+    <div class="register-logo">
+
+        <a href="all-admin-index.html"><b>二手市场</b>用户注册</a>
+
+    </div>
+
+    <div class="register-box-body">
+        <p class="login-box-msg">新用户注册</p>
+
+        <el-form id="reForm" :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
+                 class="demo-ruleForm">
+            <el-upload
+                    class="avatar-uploader"
+                    v-model="ruleForm.avatar"
+                    action
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                    :before-upload="beforeAvatarUpload">
+                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+            <p class="login-box-msg" id="choose-avatar">选择头像文件</p>
+
+            <el-form-item label="用户名" prop="username">
+                <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="号码" prop="phone">
+                <el-input v-model="ruleForm.phone"></el-input>
+            </el-form-item>
+
+            <el-form-item label="密码" prop="password">
+                <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="确认密码" prop="checkPassword">
+                <el-input type="password" v-model="ruleForm.checkPassword" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item>
+                <el-button type="primary" @click="submit('ruleForm')">提交</el-button>
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+            </el-form-item>
+        </el-form>
+
+
+        <div class="social-auth-links text-center">
+            <p>- 或者 -</p>
+            <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="iconfont icon-guanliyuan"></i>
+                管理员用户登录</a>
+        </div>
+
+        <a th:href="@{/user/index}" class="text-center">我有账号，现在就去登录</a>
+    </div>
+    <!-- /.form-box -->
+</div>
+
+<style>
+    .error {
+        color: red;
+    }
+
+    #reForm {
+        margin-left: 0;
+        margin-right: 30px;
+    }
+
+    #choose-avatar {
+        margin-left: 25px;
+    }
+
+    #app {
+        width: 400px;
+    }
+
+    .avatar-uploader .el-upload {
+        margin-left: 47px;
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+    }
+
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+    }
+
+    .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+    }
+</style>
+
+<script src="../../static/js/jquery-3.3.1.js"></script>
+<script src="../../static/js/vue.js"></script>
+<script src="../../static/js/axios.js"></script>
+<script src="../../static/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../static/plugins/iCheck/icheck.min.js"></script>
+<script src="../../static/js/jquery.validate.js"></script>
+<script src="../../static/js/messages_zh.js"></script>
+<script src="../../static/js/globalVar.js"></script>
+<script src="../../static/js/element-index.js"></script>
+
+
+<script>
+    $(function () {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+    });
+</script>
+
+<script>
+    let app = new Vue({
+        el: "#app",
+        data() {
+            let validateUsername = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入用户名'));
+                } else {
+                    if (value.length < 3 || value.length > 20) {
+                        callback(new Error('用户名长度为3到20个字符'));
+                    }
+                    callback();
+                }
+            };
+            let checkPhone = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('号码不能为空'));
+                }
+                setTimeout(() => {
+                    if (isNaN(value)) {
+                        callback(new Error('请输入数字值'));
+                    } else {
+                        if (value.length !== 11) {
+                            callback(new Error('请输入11位号码'));
+                        } else {
+                            callback();
+                        }
+                    }
+                }, 1000);
+            };
+            let validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (value.length < 5 || value.length > 20) {
+                        callback(new Error('密码长度为5到20个字符'));
+                    }
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            let validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                ruleForm: {
+                    username: '',
+                    password: '',
+                    checkPassword: '',
+                    phone: '',
+                },
+                rules: {
+                    username: [
+                        {validator: validateUsername, trigger: 'blur'}
+                    ],
+                    password: [
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                    checkPassword: [
+                        {validator: validatePass2, trigger: 'blur'}
+                    ],
+                    phone: [
+                        {validator: checkPhone, trigger: 'blur'}
+                    ]
+                },
+                imageUrl: '',
+            };
+        },
+        methods: {
+            submit(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        let that = this;
+                        let config = {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        };
+                        let params = new FormData();
+                        params.append("file",formName.file);
+                        params.append("user", this.ruleForm);
+                        alert(params);
+                        axios.post(preURL + "/user/axios", params, config).then(res => {
+                            console.log(res);
+                        }, err => {
+                            console.log(err);
+                        });
+                        alert('submit!');
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+            },
+            beforeAvatarUpload(file) {
+                let fileAccept = ['image/vnd-wap-wbmp', 'image/gif', 'image/jpeg', 'image/jpg', 'image/png', 'image/svg'];
+                let isOk = fileAccept.indexOf(file.type);
+                const isLt10M = file.size / 1024 / 1024 <= 10;
+
+                if (!isOk) {
+                    this.$message.error('请上传正确格式的头像图片');
+                }
+                if (!isLt10M) {
+                    this.$message.error('上传头像图片大小不能超过 10MB!');
+                }
+                return isOk && isLt10M;
+            },
+            shit() {
+                console.log(this.ruleForm.avatar);
+            }
+        }
+    });
+
+
+</script>
+
+</body>
+
+</html>

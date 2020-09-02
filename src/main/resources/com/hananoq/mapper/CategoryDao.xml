@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hananoq.dao.CategoryDao">
+  <resultMap id="BaseResultMap" type="com.hananoq.domain.Category">
+    <id column="number" jdbcType="INTEGER" property="number" />
+    <result column="goods_number" jdbcType="INTEGER" property="goodsNumber" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    `number`, goods_number, `name`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from category
+    where `number` = #{number,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from category
+    where `number` = #{number,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="number" keyProperty="number" parameterType="com.hananoq.domain.Category" useGeneratedKeys="true">
+    insert into category (goods_number, `name`)
+    values (#{goodsNumber,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="number" keyProperty="number" parameterType="com.hananoq.domain.Category" useGeneratedKeys="true">
+    insert into category
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="goodsNumber != null">
+        goods_number,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="goodsNumber != null">
+        #{goodsNumber,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hananoq.domain.Category">
+    update category
+    <set>
+      <if test="goodsNumber != null">
+        goods_number = #{goodsNumber,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where `number` = #{number,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hananoq.domain.Category">
+    update category
+    set goods_number = #{goodsNumber,jdbcType=INTEGER},
+      `name` = #{name,jdbcType=VARCHAR}
+    where `number` = #{number,jdbcType=INTEGER}
+  </update>
+</mapper>

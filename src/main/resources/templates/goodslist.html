@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>商品列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/template.css}" media="all">
+    <style>
+        b {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid layadmin-cmdlist-fluid" id="app">
+    <div class="cmdlist-container">
+        <div class="layui-card-body">
+            <li class="layui-nav-item layui-hide-xs" lay-unselect>
+                <input type="text" placeholder="搜索商品" autocomplete="off" class="layui-input layui-input-search"
+                       v-model="searchParam" style="width: 400px;margin-left: 40px" v-on:keyup.enter="searchGoods">
+            </li>
+        </div>
+    </div>
+    <div class="layui-row layui-col-space30">
+
+        <div class="layui-col-md2 layui-col-sm4" v-for="goods in goodslist">
+            <div class="cmdlist-container">
+                <a :href="requestUrl+goods.number" target="_self">
+                    <img :src="imgURL+goods.picture" style="width: 186px; height: 186px">
+                </a>
+                <a href="javascript:;">
+                    <div class="cmdlist-text">
+                        <p class="info">{{goods.name}}</p>
+                        <div class="price">
+                            <b>￥{{goods.price}}</b>
+                            <span class="flow">
+                      <i class="layui-icon layui-icon-rate"></i>
+                    </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script>
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index']);
+    layui.use(['laypage', 'layer'], function () {
+        var laypage = layui.laypage
+            , layer = layui.layer;
+        //总页数低于页码总数
+        laypage.render({
+            elem: 'demo0'
+            , count: 50 //数据总数
+        });
+    });
+
+    let app = new Vue({
+        el: "#app",
+        data: {
+            imgURL: preURL + '/img/goods/',
+            goodslist: null,
+            requestUrl: preURL + '/goods/detail/',
+            searchParam: '',
+        },
+        created() {
+            this.getGoods();
+        },
+        methods: {
+            getGoods() {
+                let that = this;
+                axios.get(preURL + '/goods/allGoods').then(res => {
+                    that.goodslist = res.data.data;
+                }, err => {
+                    console.log(err);
+                });
+            },
+            // 商品名模糊搜索
+            searchGoods() {
+                let that = this;
+                let params = new URLSearchParams();
+                params.append('param', this.searchParam);
+                axios({
+                    method: 'get',
+                    url: preURL + '/goods/search',
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    params,
+                }).then(res => {
+                    that.goodslist = res.data.data;
+                }, err => {
+                    console.log(err);
+                });
+            }
+        }
+    });
+</script>
+</body>
+
+
+</html>

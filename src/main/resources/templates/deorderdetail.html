@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>收货订单详情</title>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" th:href="@{/plugins/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/element-index.css}">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/template.css}" media="all">
+
+    <style>
+        img {
+            margin: 20px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="main-container" id="app">
+    <ul class="layui-nav layui-bg-cyan" lay-filter="component-nav">
+        <li class="layui-nav-item layui-this">发货订单详情</li>
+    </ul>
+    <div style="float: right; margin-right: 10px" class="row">
+        <button class="layui-btn layui-btn-radius" onclick="history.go(-1)">返回</button>
+    </div>
+    <div style="margin-top: 10px; margin-left: 300px">
+
+        <div class="col-sm-6 col-md-4" style="margin-top: 20px">
+            <div class="thumbnail">
+                <img :src="picture" alt="商品图片">
+                <div class="caption" style="margin-left: 28px">
+                    <h3><a href="#">{{order.goodsName}}</a></h3>
+                    <p>{{order.description}}</p>
+                </div>
+            </div>
+        </div>
+
+        <!--订单信息-->
+        <div class="col-md-5">
+            <div class="layui-card-body" pad15>
+                <div class="layui-form" lay-filter="">
+                    <div class="layui-card-header">订单信息</div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-inline">
+                            <input type="text" value="收货订单" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">交易金额</label>
+                        <div class="layui-input-inline">
+                            <input type="text" :value="order.price" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">发货地址</label>
+                        <div class="layui-input-inline">
+                            <input type="text" :value="order.shippingAddress" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">发货人</label>
+                        <div class="layui-input-inline">
+                            <input type="text" :value="order.shippingName" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">发货人电话</label>
+                        <div class="layui-input-inline">
+                            <input type="text" :value="sell.phone" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-inline">
+                            <input type="text" :value="orderStatus" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">交易时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" :value="order.completeTime" readonly class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">不可修改</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/js/jquery-3.3.1.js}"></script>
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/plugins/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script th:src="@{/js/element-index.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+
+<script th:inline="javascript">
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use('index');
+
+    let a = [[${order}]];
+    let b = [[${sell}]];
+    let c = [[${orderStatus}]];
+
+
+    let app = new Vue({
+        el: "#app",
+        data: {
+            goodsImgPre: goodsImageUrl,
+            order: [[${order}]],
+            picture: [[${picture}]],
+            sell: [[${sell}]],
+            orderStatus: [[${orderStatus}]],
+        },
+        methods: {},
+        created() {
+        }
+    });
+
+</script>
+</body>
+
+</html>

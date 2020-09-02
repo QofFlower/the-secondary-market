@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hananoq.dao.AvatarDao">
+    <resultMap id="BaseResultMap" type="com.hananoq.domain.Avatar">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, user_id, path
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from avatar
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="findByUserId" resultType="com.hananoq.domain.Avatar">
+        select *
+        from avatar
+        where user_id = #{UserId};
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from avatar
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.hananoq.domain.Avatar"
+            useGeneratedKeys="true">
+        insert into avatar (user_id, path)
+        values (#{userId,jdbcType=INTEGER}, #{path,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hananoq.domain.Avatar"
+            useGeneratedKeys="true">
+        insert into avatar
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="path != null">
+                path,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="path != null">
+                #{path,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.hananoq.domain.Avatar">
+        update avatar
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="path != null">
+                path = #{path,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.hananoq.domain.Avatar">
+        update avatar
+        set user_id = #{userId,jdbcType=INTEGER},
+            path    = #{path,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByUserId">
+        update avatar
+        set path = #{avatarName}
+        where user_Id = #{userId};
+    </update>
+</mapper>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>设置我的资料</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/template.css}" media="all">
+</head>
+<body>
+<div id="app">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">设置我的资料</div>
+                    <div class="layui-card-body" pad15>
+
+                        <div class="layui-form" lay-filter="">
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">用户名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="username" ref="username"
+                                           th:value="${session.user.username}"
+                                           lay-verify="username" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+
+                            <!--<div class="layui-form-item">
+                                <label class="layui-form-label">用户名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="username" th:value="${session.user.username}" readonly
+                                           class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">不可修改</div>
+                            </div>-->
+
+                            <!--<div class="layui-form-item">
+                                <label class="layui-form-label">性别</label>
+                                <div class="layui-input-block">
+                                    <input type="radio" name="sex" value="男" title="男" th:checked="">
+                                    <input type="radio" name="sex" value="女" title="女" checked>
+                                </div>
+                            </div>-->
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">头像</label>
+                                <div class="layui-input-inline">
+                                    <input name="avatar" lay-verify="required" id="LAY_avatarSrc" readonly placeholder="图片地址"
+                                           v-model="avatarURL" class="layui-input">
+                                </div>
+                                <div class="layui-input-inline layui-btn-container" style="width: auto;">
+                                    <button type="button" class="layui-btn layui-btn-primary" id="LAY_avatarUpload">
+                                        <i class="layui-icon">&#xe67c;</i>上传图片
+                                    </button>
+                                    <button class="layui-btn layui-btn-primary" layadmin-event="avartatPreview">查看图片
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">手机</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="phone" ref="phone" v-model="user.phone"
+                                           lay-verify="phone" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">地址</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="address" ref="address"
+                                           v-model="user.address"
+                                           lay-verify="address" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="layui-btn" @click="updateInfo">确认修改</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary">重新填写</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script>
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'set']);
+
+    let app = new Vue({
+        el: "#app",
+        data: {
+            user: {
+                username: "",
+                avatar: "",
+                phone: "",
+                address: "",
+            },
+            avatarURL: "",
+        },
+        created() {
+            //加载页面时请求当前登录的用户信息
+            let that = this;
+            axios.get(preURL + '/user/getInfo').then(res => {
+                // console.log(res.data.data);
+                that.user = res.data.data.user;
+                that.avatarURL = res.data.data.avatarURL;
+            }, err => {
+                console.log(err);
+            });
+        }
+        ,
+        methods: {
+            updateInfo() {
+                this.user.username = this.$refs.username.value;
+                this.user.phone = this.$refs.phone.value;
+                this.user.address = this.$refs.address.value;
+                let user = this.user;
+                //提交修改用户数据
+                axios({
+                    method: 'patch',
+                    url: preURL + '/user/update',
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    data: JSON.stringify(user),
+                }).then(res => {
+                    layer.msg(res.data.message, {
+                        offset: '15px'
+                        , icon: 1
+                    });
+                }, err => {
+                    layer.msg(err.data.message, {
+                        offset: '15px'
+                        , icon: 5
+                    });
+                })
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

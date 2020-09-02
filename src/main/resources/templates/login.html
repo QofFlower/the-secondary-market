@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>二手市场 | Log in</title>
+
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+
+    <link rel="stylesheet" th:href="@{/plugins/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/ionicons/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/adminLTE/css/AdminLTE.css}">
+    <link rel="stylesheet" th:href="@{/plugins/iCheck/square/blue.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/alicss/iconfont.css}">
+
+    <style>
+        .error {
+            color: red;
+        }
+
+        #message {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body class="hold-transition login-page">
+<div id="app">
+    <div class="login-box">
+
+        <div class="login-logo">
+            <a href="all-admin-index.html"><b>二手市场</b>登录</a>
+        </div>
+
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            <p class="login-box-msg" id="leo">登录系统</p>
+            <p class="login-box-msg" th:text="${session.message}" id="message"></p>
+            <form th:action="@{/user/login}" method="post" id="loginForm">
+                <div class="form-group has-feedback">
+                    <input type="text" v-model="user.username" name="username" class="form-control" placeholder="用户名">
+                    <span class="glyphicon fa fa-user-circle-o form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" v-model="user.password" name="password" class="form-control"
+                           placeholder="密码">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="row">
+                    <div class="col-xs-8">
+                        <div class="checkbox icheck">
+                            <label><input type="checkbox"> 记住 下次自动登录</label>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-xs-4">
+<!--                        <button @click="submit" class="btn btn-primary btn-block btn-flat">登录</button>-->
+                        <button @click="submit" class="btn btn-primary">登录</button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+
+            <div class="social-auth-links text-center">
+                <p>- 或者 -</p>
+                <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i
+                        class="iconfont icon-guanliyuan"></i>
+                    管理员用户登录</a>
+            </div>
+
+            <a href="#">忘记密码</a><br>
+            <a th:href="@{/user/register}" class="text-center">新用户注册</a>
+
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/js/jquery-3.3.1.js}"></script>
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/plugins/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/plugins/iCheck/icheck.min.js}"></script>
+<script th:src="@{/js/jquery.validate.js}"></script>
+<script th:src="@{/js/messages_zh.js}"></script>
+
+<script>
+    $(function () {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+    });
+</script>
+
+<script>
+    $().ready(function () {
+        // 在键盘按下并释放及提交后验证提交表单
+        $("#loginForm").validate({
+            rules: {
+                username: {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 20
+                },
+                password: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 20
+                },
+
+            },
+            messages: {
+                username: {
+                    required: "请输入用户名",
+                    minlength: "用户名长度为3到20个字符",
+                    maxlength: "用户名长度为3到20个字符"
+                },
+                password: {
+                    required: "请输入密码",
+                    minlength: "密码长度不能小于 5 个字符",
+                    maxlength: "密码长度不能大于 20 个字符"
+                },
+            }
+        })
+    });
+
+    let app = new Vue({
+        el: "#app",
+        data: {
+            user: {
+                username: "",
+                password: "",
+            }
+        },
+        methods: {
+            submit() {
+                let params = new URLSearchParams();
+                params.append('user', this.user);
+                axios.post(preURL + '/user/login', params).then(res => {
+                    if (res.code === 200) {
+                        layer.msg(res.data.message, {
+                            offset: '15px',
+                            icon: 1
+                        });
+                        location.href = preURL + '/user/index';
+                    } else {
+                        layer.msg(res.data.message, {
+                            offset: '15px',
+                            icon: 5
+                        });
+                    }
+                }, err => {
+                    console.log(err.data.message);
+                });
+            }
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hananoq.dao.OrdersDao">
+    <resultMap id="BaseResultMap" type="com.hananoq.domain.Orders">
+        <id column="number" jdbcType="VARCHAR" property="number"/>
+        <result column="goodsNumber" jdbcType="INTEGER" property="goodsNumber"/>
+        <result column="goodsName" jdbcType="VARCHAR" property="goodsName"/>
+        <result column="price" jdbcType="DOUBLE" property="price"/>
+        <result column="shippingName" jdbcType="VARCHAR" property="shippingName"/>
+        <result column="deliveryName" jdbcType="VARCHAR" property="deliveryName"/>
+        <result column="shippingAddress" jdbcType="VARCHAR" property="shippingAddress"/>
+        <result column="deliveryAddress" jdbcType="VARCHAR" property="deliveryAddress"/>
+        <result column="completeTime" jdbcType="TIMESTAMP" property="completeTime"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+    </resultMap>
+
+    <!--结果返回包括商品图片的封装-->
+    <resultMap id="orderIncludeGoods" type="com.hananoq.domain.Orders">
+        <id column="number" jdbcType="VARCHAR" property="number"/>
+        <result column="goodsNumber" jdbcType="INTEGER" property="goodsNumber"/>
+        <result column="goodsName" jdbcType="VARCHAR" property="goodsName"/>
+        <result column="price" jdbcType="DOUBLE" property="price"/>
+        <result column="shippingName" jdbcType="VARCHAR" property="shippingName"/>
+        <result column="deliveryName" jdbcType="VARCHAR" property="deliveryName"/>
+        <result column="shippingAddress" jdbcType="VARCHAR" property="shippingAddress"/>
+        <result column="deliveryAddress" jdbcType="VARCHAR" property="deliveryAddress"/>
+        <result column="completeTime" jdbcType="TIMESTAMP" property="completeTime"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="goodsPicture" property="goodsPicture"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+                number, goodsNumber, goodsName, price, shippingName, deliveryName, shippingAddress,
+                deliveryAddress, completeTime, description
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from orders
+        where number = #{number,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getAllDeliveryOrdersByUsername" resultType="com.hananoq.domain.Orders">
+        select *
+        from orders
+        where deliveryName = #{username}
+    </select>
+
+    <select id="getAllShippingOrdersByUsername" resultType="com.hananoq.domain.Orders">
+        select *
+        from orders
+        where shippingName = #{username};
+    </select>
+
+    <select id="getAllDeliveryOrdersContainPic" resultMap="orderIncludeGoods">
+        select a.*, s.status as status
+        from (select o.*, g.picture as goodsPicture
+              from (select * from orders where deliveryName = #{username}) o
+                       inner join goods g on g.number = o.goodsNumber) a
+                 inner join state s on a.number = s.orderNumber;
+    </select>
+
+    <select id="getAllShippingOrdersContainPic" resultMap="orderIncludeGoods">
+        select a.*, s.status as status
+        from (select o.*, g.picture as goodsPicture
+              from (select * from orders where shippingName = #{username}) o
+                       inner join goods g on g.number = o.goodsNumber) a
+                 inner join state s on a.number = s.orderNumber;
+    </select>
+
+    <select id="selectByPrimaryKeyContainPic" resultMap="orderIncludeGoods">
+        select a.*, s.status as status
+        from (select o.*, g.picture as goodsPicture
+              from (select * from orders where number = #{number}) o
+                       inner join goods g on g.number = o.goodsNumber) a
+                 inner join state s on a.number = s.orderNumber;
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from orders
+        where number = #{number,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" keyColumn="number" keyProperty="number" parameterType="com.hananoq.domain.Orders"
+            useGeneratedKeys="true">
+        insert into orders (number, goodsNumber, goodsName, price,
+                            shippingName, deliveryName, shippingAddress,
+                            deliveryAddress, completeTime, description)
+        values (#{number,jdbcType=VARCHAR}, #{goodsNumber,jdbcType=INTEGER}, #{goodsName,jdbcType=VARCHAR},
+                #{price,jdbcType=DOUBLE},
+                #{shippingName,jdbcType=VARCHAR}, #{deliveryName,jdbcType=VARCHAR}, #{shippingAddress,jdbcType=VARCHAR},
+                #{deliveryAddress,jdbcType=VARCHAR}, #{completeTime,jdbcType=TIMESTAMP},
+                #{description,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" keyColumn="number" keyProperty="number" parameterType="com.hananoq.domain.Orders"
+            useGeneratedKeys="true">
+        insert into orders
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="goodsNumber != null">
+                goodsNumber,
+            </if>
+            <if test="goodsName != null">
+                goodsName,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="shippingName != null">
+                shippingName,
+            </if>
+            <if test="deliveryName != null">
+                deliveryName,
+            </if>
+            <if test="shippingAddress != null">
+                shippingAddress,
+            </if>
+            <if test="deliveryAddress != null">
+                deliveryAddress,
+            </if>
+            <if test="completeTime != null">
+                completeTime,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="goodsNumber != null">
+                #{goodsNumber,jdbcType=INTEGER},
+            </if>
+            <if test="goodsName != null">
+                #{goodsName,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=DOUBLE},
+            </if>
+            <if test="shippingName != null">
+                #{shippingName,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryName != null">
+                #{deliveryName,jdbcType=VARCHAR},
+            </if>
+            <if test="shippingAddress != null">
+                #{shippingAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryAddress != null">
+                #{deliveryAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="completeTime != null">
+                #{completeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.hananoq.domain.Orders">
+        update orders
+        <set>
+            <if test="goodsNumber != null">
+                goodsNumber = #{goodsNumber,jdbcType=INTEGER},
+            </if>
+            <if test="goodsName != null">
+                goodsName = #{goodsName,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                price = #{price,jdbcType=DOUBLE},
+            </if>
+            <if test="shippingName != null">
+                shippingName = #{shippingName,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryName != null">
+                deliveryName = #{deliveryName,jdbcType=VARCHAR},
+            </if>
+            <if test="shippingAddress != null">
+                shippingAddress = #{shippingAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryAddress != null">
+                deliveryAddress = #{deliveryAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="completeTime != null">
+                completeTime = #{completeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where number = #{number,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.hananoq.domain.Orders">
+        update orders
+        set goodsNumber     = #{goodsNumber,jdbcType=INTEGER},
+            goodsName       = #{goodsName,jdbcType=VARCHAR},
+            price           = #{price,jdbcType=DOUBLE},
+            shippingName    = #{shippingName,jdbcType=VARCHAR},
+            deliveryName    = #{deliveryName,jdbcType=VARCHAR},
+            shippingAddress = #{shippingAddress,jdbcType=VARCHAR},
+            deliveryAddress = #{deliveryAddress,jdbcType=VARCHAR},
+            completeTime    = #{completeTime,jdbcType=TIMESTAMP},
+            description     = #{description,jdbcType=VARCHAR}
+        where number = #{number,jdbcType=VARCHAR}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,118 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layer 组件功能演示</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../static/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../static/css/element-index.css">
+    <link rel="stylesheet" href="../../static/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../static/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="../../static/layuiadmin/style/template.css" media="all">
+</head>
+<body>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>组件</cite></a>
+        <a href="http://layer.layui.com/" target="_blank">layer</a>
+        <a><cite>功能演示</cite></a>
+    </div>
+</div>
+
+<style>
+    /* 这段样式只是用于演示 */
+    #LAY-component-layer-list .layui-card-body{padding-top: 15px;}
+</style>
+
+<div class="layui-fluid" id="LAY-component-layer-list">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card demo-component-layer">
+                <div class="layui-card-header">弹层之美</div>
+                <div class="layui-card-body">
+
+                    <blockquote class="layui-elem-quote">
+                        layer 是 layui 中最广为人知的组件，它可以轻松应对 Web 应用开发中的各类复杂的弹出交互。有人说使用 layer 是一种情怀，一旦用上了，就离不开了。有多少人是因为 layer 才选择 layui 的呢，有一种信仰，叫：无条件相信
+                    </blockquote>
+
+                </div>
+            </div>
+
+            <div class="layui-card">
+                <div class="layui-card-header">弹层类型</div>
+                <div class="layui-card-body">
+
+                    <div class="layui-btn-container layadmin-layer-demo">
+                        <button class="layui-btn layui-btn-primary" data-type="test1">Alert</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test2">Confirm</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test3">Msg</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test4">Tips</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test5">Page</button>
+
+                        <button class="layui-btn layui-btn-primary" data-type="test6">Iframe</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test7">Prompt</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test8">Tab</button>
+                        <button class="layui-btn layui-btn-primary" data-type="test9">Photos</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script src="../../static/js/jquery-3.3.1.js"></script>
+<script src="../../static/js/vue.js"></script>
+<script src="../../static/js/axios.js"></script>
+<script src="../../static/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../static/plugins/iCheck/icheck.min.js"></script>
+<script src="../../static/js/jquery.validate.js"></script>
+<script src="../../static/js/messages_zh.js"></script>
+<script src="../../static/js/globalVar.js"></script>
+<script src="../../static/js/element-index.js"></script>
+
+<script>
+    layui.config({
+        base: '../../../layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index'], function(){
+        var $ = layui.$
+            ,admin = layui.admin
+            ,element = layui.element
+            ,layer = layui.layer;
+
+        element.render();
+
+        /* 触发弹层 */
+        var active = {
+            test5: function(){
+                layer.open({
+                    title:'页面层'
+                    ,type: 1
+                    //,skin: 'layui-layer-rim'
+                    ,shadeClose: true
+                    ,area: admin.screen() < 2 ? ['80%', '300px'] : ['700px', '500px']
+                    ,content: '<div style="padding: 20px;">放入任意HTML</div>'
+                });
+            }
+        };
+
+
+        $('#LAY-component-layer-list .layadmin-layer-demo .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] && active[type].call(this);
+        });
+
+    });
+</script>
+</body>
+</html>

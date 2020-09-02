@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>商品详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/css/element-index.css}">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/template.css}" media="all">
+    <style>
+        .cmdlist-container {
+            margin-top: 40px;
+            width: 80%;
+            margin-left: 110px;
+        }
+
+        .the-bottom {
+            margin-top: 10px;
+            width: 60%;
+            margin-left: 320px;
+            /*border: red 2px solid;*/
+        }
+
+        #img {
+            width: 175px;
+            height: 175px;
+            margin-left: 60px;
+            margin-top: 50px
+        }
+
+        #goodsPreview {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+            width: 300px;
+            float: left;
+            margin-top: 57px;
+        }
+
+        #info {
+            float: left;
+            margin-left: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="cmdlist-container">
+        <div class="layui-card-body">
+            <blockquote class="layui-elem-quote">
+                <span th:text="${goods.name}"></span>
+                <p style="color: #0000cc">(点击图片可进行大图浏览)</p>
+            </blockquote>
+        </div>
+    </div>
+
+    <div class="the-bottom">
+        <div>
+            <div id="goodsPreview" class="layui-col-md1">
+                <el-image
+                        id="img"
+                        :src="url"
+                        :preview-src-list="srcList">
+                </el-image>
+
+                <div class="cmdlist-text" style="margin-left: 30px">
+                    <p style="word-wrap: break-word;  width: 200px">
+                        {{goods.description}}</p>
+                </div>
+            </div>
+
+
+            <div id="info">
+                <div class="layui-card-header">商品信息</div>
+                <div class="layui-card-body">
+                    <fieldset class="layui-elem-field">
+                        <legend>名称</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            <span th:text="${goods.name}"></span>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="layui-elem-field">
+                        <legend>价格</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            ￥<b style="color: red" th:text="${goods.price}"></b>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="layui-elem-field">
+                        <legend>卖家</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            <span th:text="${seller.username}"></span>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="layui-elem-field">
+                        <legend>地址</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            <span th:text="${seller.address}"></span>
+                        </div>
+                    </fieldset>
+                    <fieldset class="layui-elem-field layui-field-title">
+                        <legend>购买或收藏</legend>
+                    </fieldset>
+
+                    <div shiro:authenticated="">
+                        <button class="layui-btn" th:if="${self==true}">无法购买和收藏自己的商品</button>
+                        <div th:if="${self==false}">
+                            <button class="layui-btn" @click="test5">立即购买</button>
+                            <button class="layui-btn" th:if="${hasLike==1}">已收藏</button>
+                            <button class="layui-btn" th:if="${hasLike==0}" @click="favorite"><i
+                                    class="layui-icon">&#xe600;</i></button>
+                        </div>
+                    </div>
+
+                    <div shiro:guest="">
+                        <a target="_parent" th:href="@{/user/login}"
+                           style="margin-left: 28px;font-size: 20px;color: #0000cc">请先登录</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script th:src="@{/js/element-index.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+
+<script th:inline="javascript">
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index'], function () {
+        let $ = layui.$
+            , element = layui.element
+            , layer = layui.layer;
+
+        element.render();
+
+        /* 触发弹层 */
+
+
+        $('#LAY-component-layer-list .layadmin-layer-demo .layui-btn').on('click', function () {
+            let type = $(this).data('type');
+            active[type] && active[type].call(this);
+        });
+
+    });
+
+    let app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                url: '',
+                seller: null,
+                goods: null,
+                srcList: []
+            }
+        },
+        created() {
+            let imgName = [[${goods.picture}]];
+            this.seller = [[${seller}]];
+            this.goods = [[${goods}]];
+            this.url = goodsImageUrl + imgName;
+            this.srcList.push(this.url);
+        },
+        methods: {
+            // 下单
+            test5() {
+                let that = this;
+                layer.open({
+                    title: '下单'
+                    , type: 2
+                    //,skin: 'layui-layer-rim'
+                    , shadeClose: true
+                    , area: layui.admin.screen() < 2 ? ['80%', '300px'] : ['700px', '500px']
+                    , content: "/order/addOrder"
+                    , success: function (layero, index) {
+                        // 向子页面传递参数
+                        let iframe = window['layui-layer-iframe' + index];
+                        iframe.child(that.seller, that.goods);
+                    }
+                });
+            },
+            // 收藏
+            favorite() {
+                this.$confirm('确定添加收藏?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let params = new URLSearchParams();
+                    params.append('number', this.goods.number);
+                    axios({
+                        method: 'post',
+                        url: preURL + '/favorite/add',
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        params,
+                    }).then(res => {
+                        if (res.data.code === 200)
+                            layer.msg(res.data.message, {
+                                offset: '15px'
+                                , icon: 1
+                            });
+                        else
+                            layer.msg(res.data.message, {
+                                offset: '15px'
+                                , icon: 5
+                            });
+                    });
+                })
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

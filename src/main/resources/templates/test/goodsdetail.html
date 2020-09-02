@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>商品详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../static/css/test/element-test.css">
+    <link rel="stylesheet" href="../../static/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../static/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="../../static/layuiadmin/style/template.css" media="all">
+    <style>
+        .cmdlist-container {
+            margin-top: 40px;
+            width: 80%;
+            margin-left: 110px;
+        }
+
+        .the-bottom {
+
+            margin-top: 50px;
+            width: 60%;
+            margin-left: 50px;
+        }
+
+        #img {
+            width: 175px;
+            height: 175px;
+            margin-left: 60px;
+            margin-top: 50px
+        }
+
+        #goodsPreview {
+            margin-left: 100px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+            width: 300px;
+            float: left;
+            margin-top: 14px;
+        }
+
+        #info {
+            float: right;
+            margin-right: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="cmdlist-container">
+        <div class="layui-card-body">
+            <blockquote class="layui-elem-quote">
+                xxxx商品<p style="color: #0000cc">(点击图片可进行大图浏览)</p>
+            </blockquote>
+        </div>
+    </div>
+
+    <div class="the-bottom">
+        <div>
+            <div id="goodsPreview">
+                <el-image
+                        id="img"
+                        :src="url"
+                        :preview-src-list="srcList">
+                </el-image>
+
+                <div class="cmdlist-text" style="margin-left: 30px">
+                    <p style="word-wrap: break-word;  width: 200px">
+                        asdfsdafdsahfnhjdshafkhjlllllllllsddfsaggfdaaaaaaaaa</p>
+                </div>
+            </div>
+
+
+            <div id="info">
+                <div class="layui-card-header">商品信息</div>
+                <div class="layui-card-body">
+                    <fieldset class="layui-elem-field">
+                        <legend>名称</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            <span th:text="dsfasf"></span>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="layui-elem-field">
+                        <legend>价格</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            ￥<b style="color: red" th:text="25112"></b>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="layui-elem-field">
+                        <legend>卖家</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            <span th:text="dsfasdf"></span>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="layui-elem-field">
+                        <legend>地址</legend>
+                        <div class="layui-field-box" style="width: 200px">
+                            <span th:text="sdfasdf"></span>
+                        </div>
+                    </fieldset>
+                    <fieldset class="layui-elem-field layui-field-title">
+                        <legend>购买或收藏</legend>
+                    </fieldset>
+                    <button class="layui-btn" @click="test5">立即购买</button>
+                    <button class="layui-btn"><i class="layui-icon">&#xe600;</i></button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script src="../../static/js/vue.js"></script>
+<script src="../../static/js/axios.js"></script>
+<script src="../../static/js/globalVar.js"></script>
+<script src="../../static/js/element-index.js"></script>
+<script src="../../static/layuiadmin/layui/layui.js"></script>
+
+
+<script th:inline="javascript">
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index'], function () {
+        let $ = layui.$
+            , element = layui.element
+            , layer = layui.layer;
+
+        element.render();
+
+        /* 触发弹层 */
+
+
+        $('#LAY-component-layer-list .layadmin-layer-demo .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] && active[type].call(this);
+        });
+
+    });
+
+    let app = new Vue({
+            el: "#app",
+            data() {
+                return {
+                    url: goodsImageUrl + 'tom.jpg',
+                    seller: null,
+                    goods: null,
+                    srcList: []
+                }
+            },
+            created() {
+
+            },
+            methods: {
+                test5() {
+                    layer.open({
+                        title: '下单'
+                        , type: 2
+                        //,skin: 'layui-layer-rim'
+                        , shadeClose: true
+                        , area: layui.admin.screen() < 2 ? ['80%', '300px'] : ['700px', '500px']
+                        , content: "/order/addorder"
+                        , success: function (layero, index) {
+                            let iframe = window['layui-layer-iframe' + index];
+                            iframe.child(this.seller, this.goods, this.url);
+                        }
+                    });
+                }
+            }
+        })
+    ;
+
+</script>
+</body>
+</html>

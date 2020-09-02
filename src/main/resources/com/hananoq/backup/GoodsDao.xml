@@ -1,0 +1,85 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
+<!--<mapper namespace="com.hananoq.dao.GoodsDao">-->
+<!--    <resultMap id="BaseResultMap" type="com.hananoq.domain.Goods">-->
+<!--        <id column="number" jdbcType="INTEGER" property="number"/>-->
+<!--        <result column="name" jdbcType="VARCHAR" property="name"/>-->
+<!--        <result column="picture" jdbcType="VARCHAR" property="picture"/>-->
+<!--        <result column="price" jdbcType="DOUBLE" property="price"/>-->
+<!--    </resultMap>-->
+<!--    <sql id="Base_Column_List">-->
+<!--        number, name, picture, price-->
+<!--    </sql>-->
+<!--    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from goods-->
+<!--        where number = #{number,jdbcType=INTEGER}-->
+<!--    </select>-->
+
+<!--    <select id="findAll" resultType="com.hananoq.domain.Goods">-->
+<!--        select *-->
+<!--        from goods;-->
+<!--    </select>-->
+
+<!--    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">-->
+<!--        delete-->
+<!--        from goods-->
+<!--        where number = #{number,jdbcType=INTEGER}-->
+<!--    </delete>-->
+
+<!--    <insert id="insert" keyColumn="number" keyProperty="number" parameterType="com.hananoq.domain.Goods"-->
+<!--            useGeneratedKeys="true">-->
+<!--        insert into goods (name, picture, price)-->
+<!--        values (#{name,jdbcType=VARCHAR}, #{picture,jdbcType=VARCHAR}, #{price,jdbcType=DOUBLE})-->
+<!--    </insert>-->
+
+<!--    <insert id="insertSelective" keyColumn="number" keyProperty="number" parameterType="com.hananoq.domain.Goods"-->
+<!--            useGeneratedKeys="true">-->
+<!--        insert into goods-->
+<!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
+<!--            <if test="name != null">-->
+<!--                name,-->
+<!--            </if>-->
+<!--            <if test="picture != null">-->
+<!--                picture,-->
+<!--            </if>-->
+<!--            <if test="price != null">-->
+<!--                price,-->
+<!--            </if>-->
+<!--        </trim>-->
+<!--        <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+<!--            <if test="name != null">-->
+<!--                #{name,jdbcType=VARCHAR},-->
+<!--            </if>-->
+<!--            <if test="picture != null">-->
+<!--                #{picture,jdbcType=VARCHAR},-->
+<!--            </if>-->
+<!--            <if test="price != null">-->
+<!--                #{price,jdbcType=DOUBLE},-->
+<!--            </if>-->
+<!--        </trim>-->
+<!--    </insert>-->
+<!--    <update id="updateByPrimaryKeySelective" parameterType="com.hananoq.domain.Goods">-->
+<!--        update goods-->
+<!--        <set>-->
+<!--            <if test="name != null">-->
+<!--                name = #{name,jdbcType=VARCHAR},-->
+<!--            </if>-->
+<!--            <if test="picture != null">-->
+<!--                picture = #{picture,jdbcType=VARCHAR},-->
+<!--            </if>-->
+<!--            <if test="price != null">-->
+<!--                price = #{price,jdbcType=DOUBLE},-->
+<!--            </if>-->
+<!--        </set>-->
+<!--        where number = #{number,jdbcType=INTEGER}-->
+<!--    </update>-->
+<!--    <update id="updateByPrimaryKey" parameterType="com.hananoq.domain.Goods">-->
+<!--        update goods-->
+<!--        set name    = #{name,jdbcType=VARCHAR},-->
+<!--            picture = #{picture,jdbcType=VARCHAR},-->
+<!--            price   = #{price,jdbcType=DOUBLE}-->
+<!--        where number = #{number,jdbcType=INTEGER}-->
+<!--    </update>-->
+<!--</mapper>-->

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>填写订单</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/css/element-index.css}">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/template.css}" media="all">
+
+</head>
+<body>
+
+<div id="app">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">订单信息</div>
+                    <div class="layui-card-body" pad15>
+
+                        <div class="layui-form" lay-filter="">
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">商品名称</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" readonly id="goodsName" v-model="goods.name"
+                                           autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">卖家</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" readonly v-model="seller.username"
+                                           autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">发货地址</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" readonly v-model="seller.address"
+                                           autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">收货地址</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" readonly th:value="${session.user.address}"
+                                           autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                                <!--                                <div class="layui-form-mid layui-word-aux">可修改收货地址</div>-->
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">我的手机</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" readonly th:value="${session.user.phone}" name="phone"
+                                           autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">价格</label>
+                                <div class="layui-input-inline" style="margin-top: 7px">
+                                    <b style="color: red;font-size: 20px" id="price">{{goods.price}}</b>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="layui-btn" @click="addOrder">提交订单</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/jquery-3.3.1.js}"></script>
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script th:src="@{/js/element-index.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+
+<script>
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index']);
+
+    // 获取父页面传参
+    function child(seller, goods) {
+        app.seller = seller;
+        app.goods = goods;
+    }
+
+
+    let app = new Vue({
+        el: "#app",
+        created() {
+
+        },
+        data() {
+            return {
+                // 初始话数据之前预加载
+                seller: {
+                    username: '加载中',
+                    address: '加载中',
+
+                },
+                goods: {
+                    name: '加载中',
+                    price: '加载中',
+                },
+            }
+        },
+        methods: {
+            addOrder() {
+                let orders = new URLSearchParams();
+                let that = this;
+                orders.append('goodsNumber', this.goods.number);
+                orders.append('goodsName', this.goods.name);
+                orders.append('price', this.goods.price);
+                orders.append('shippingName', this.seller.username);
+                orders.append('shippingAddress', this.seller.address);
+                axios({
+                    method: 'post',
+                    url: preURL + '/order/addOrder',
+                    data: orders,
+                }).then(res => {
+                    layer.msg(res.data.message, {
+                        offset: '15px'
+                        , icon: 1
+                    });
+                    //sleep 1s
+                    this.sleep(1200, () => {
+                        let index = parent.layer.getFrameIndex(window.name); // 先得到当前iframe层的索引
+                        parent.layer.close(index); //成功再执行关闭
+                    });
+
+                }, err => {
+                    layer.msg(err.data.message, {
+                        offset: '15px'
+                        , icon: 5
+                    });
+                })
+            },
+            sleep(ms, callback) {
+                setTimeout(callback, ms)
+            },
+
+        }
+    });
+
+
+</script>
+</body>
+</html>

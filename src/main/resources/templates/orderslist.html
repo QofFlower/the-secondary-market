@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>订单列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/element-index.css}" media="all">
+
+    <style>
+        #table {
+            margin-left: 14px;
+            margin-right: 14px;
+        }
+
+        ul {
+            margin-left: 14px;
+            margin-right: 14px;
+            margin-top: 3px;
+        }
+    </style>
+
+</head>
+<body>
+
+
+<div id="app">
+    <ul class="layui-nav layui-bg-cyan" lay-filter="component-nav">
+        <li class="layui-nav-item layui-this"><a @click="getDeliveryOrders">收货订单</a></li>
+        <li class="layui-nav-item"><a @click="getShippingOrders">发货订单</a></li>
+    </ul>
+
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <shiro:principal property="username"/>
+                        的收货订单列表
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="table">
+        <template>
+            <el-table
+                    :data="tableData"
+                    border
+                    style="width: 100%">
+
+                <el-table-column
+                        fixed
+                        prop="number"
+                        label="订单号"
+                        width="100">
+                </el-table-column>
+
+                <el-table-column label="图片">
+                    <template slot-scope="scope">
+                        <img :src="scope.row.goodsPicture" style="width: 150px"/>
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                        prop="shippingName"
+                        label="卖家"
+                        width="150">
+                </el-table-column>
+
+                <el-table-column
+                        prop="shippingAddress"
+                        label="发货地址"
+                        width="250">
+                </el-table-column>
+
+                <el-table-column
+                        prop="deliveryAddress"
+                        label="收货地址"
+                        width="250">
+                </el-table-column>
+
+                <el-table-column
+                        prop="price"
+                        label="交易金额"
+                        width="120">
+                </el-table-column>
+
+                <el-table-column
+                        prop="completeTime"
+                        label="交易时间"
+                        width="300">
+                </el-table-column>
+
+                <el-table-column
+                        fixed="right"
+                        label="操作"
+                        width="100">
+                    <template slot-scope="scope">
+                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                        <el-button type="text" size="small"
+                                   @click="validateOrderEdit(scope.row.number, scope.row.status)">
+                            编辑
+                        </el-button>
+                    </template>
+                </el-table-column>
+
+            </el-table>
+        </template>
+    </div>
+
+    <el-dialog title="操作订单" :visible.sync="editDeOrderVisible" width="50%">
+        <el-radio disabled v-model="orderRadio" label="已下单">已下单</el-radio>
+        <el-radio disabled v-model="orderRadio" label="待发货">待发货</el-radio>
+        <el-radio disabled v-model="orderRadio" label="已发货">待签收</el-radio>
+        <el-radio v-model="orderRadio" label="已完成">确认收货</el-radio>
+        <span slot="footer" class="dialog-footer">
+                <el-button @click="editDeOrderVisible = false">取消</el-button>
+                <el-button type="primary" @click="orderEdit">确定</el-button>
+            </span>
+    </el-dialog>
+
+    <el-dialog title="操作订单" :visible.sync="editShOrderVisible" width="50%">
+        <el-radio disabled v-model="orderRadio" label="已下单">买家已付款</el-radio>
+        <el-radio v-model="orderRadio" label="待发货">发货</el-radio>
+        <el-radio disabled v-model="orderRadio" label="已发货">待签收</el-radio>
+        <el-radio disabled v-model="orderRadio" label="已完成">已完成</el-radio>
+        <span slot="footer" class="dialog-footer">
+                <el-button @click="editShOrderVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmUpdate">确定</el-button>
+            </span>
+    </el-dialog>
+
+</div>
+
+
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>
+<script th:src="@{/js/globalVar.js}"></script>
+<script th:src="@{/js/element-index.js}"></script>
+<script>
+    layui.config({
+        base: preURL + '/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index']);
+
+    let app = new Vue({
+        el: "#app",
+        methods: {
+            handleClick(order) {
+                // 跳转订单详情页面
+
+                window.location.href = preURL + '/order/orderDetail/' + this.isDelivery
+                    + '?number=' + order.number
+                    + '&picture=' + order.goodsPicture;
+            },
+            toggleRequest() {
+                if (this.isDelivery) {
+                    this.getShippingOrders();
+                } else {
+                    this.getDeliveryOrders();
+                }
+                this.isDelivery = !this.isDelivery;
+            },
+            orderEdit() {
+                // 修改订单状态
+                let that = this;
+                let params = new URLSearchParams();
+                params.append('status', this.orderRadio);
+                params.append('number', this.editOrderNumber);
+                axios.patch(preURL + '/order/updateStatus', params).then(res => {
+                    if (res.data.code === 200) {
+                        if (that.isDelivery === 1) {
+                            that.getDeliveryOrders();
+                        } else {
+                            that.getShippingOrders();
+                        }
+                        layer.msg(res.data.message, {
+                            offset: '15px'
+                            , icon: 1
+                        });
+                    } else {
+                        layer.msg(res.data.message, {
+                            offset: '15px'
+                            , icon: 5
+                        });
+                    }
+                });
+            },
+            getDeliveryOrders() {
+                this.isDelivery = 1;
+                // 请求获取收货订单(包含商品图片)
+                let that = this;
+                axios.get(preURL + '/order/deliveryPic').then(res => {
+                    that.tableData = res.data.data;
+                    console.log(res.data.data);
+                }, err => {
+                    console.log(err);
+                });
+            },
+            getShippingOrders() {
+                this.isDelivery = 0;
+                // 请求获取发货订单(包含商品图片)
+                let that = this;
+                axios.get(preURL + '/order/shippingPic').then(res => {
+                    that.tableData = res.data.data;
+                }, err => {
+                    console.log(err);
+                });
+            },
+            validateOrderEdit(number, status) {
+                this.orderRadio = status;
+                this.editOrderNumber = number;
+                if (this.isDelivery === 1) {
+                    this.editDeOrderVisible = true;
+                } else {
+                    this.editShOrderVisible = true;
+                }
+            },
+            // 修改订单状态的确认窗口
+            confirmUpdate() {
+                this.$confirm('确定' + this.isDelivery ? '收货' : '发货' + '?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.orderEdit();
+                    // this.$message({
+                    //     type: 'success',
+                    //     message: this.isDelivery ? '收货' : '发货' + '成功!'
+                    // });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消' + this.isDelivery ? '收货' : '发货'
+                    });
+                });
+            }
+        },
+        created() {
+            // 窗口载入时就调用
+            this.getDeliveryOrders();
+        },
+        data() {
+            return {
+                tableData: [],
+                isDelivery: 1, // 1代表当前显示的是收货订单，0为发货订单
+                editDeOrderVisible: false,
+                editShOrderVisible: false,
+                orderRadio: '',
+                editOrderNumber: '',
+            }
+        }
+    });
+</script>
+</body>
+</html>
